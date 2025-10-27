@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Header from './Header.jsx';
-import Footer from './Footer.jsx';
-import Home from './Home.jsx';
-import Productos from './Productos.jsx';
-import Ofertas from './Ofertas.jsx';
-import Contacto from './Contacto.jsx';
-import Carrito from './Carrito.jsx';
-import { CarritoProvider } from './CarritoContext.jsx';
+import Header from './componentes/Header.jsx';
+import Footer from './componentes/Footer.jsx';
+import Home from './componentes/Home.jsx';
+import Productos from './componentes/Productos.jsx';
+import Ofertas from './componentes/Ofertas.jsx';
+import Contacto from './componentes/Contacto.jsx';
+import Carrito from './componentes/Carrito.jsx';
+import { CarritoProvider } from './componentes/CarritoContext.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
