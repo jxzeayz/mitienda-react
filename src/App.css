@@ -1,0 +1,311 @@
+/* =============================================
+   ESTILOS GLOBALES - MiTienda
+   ============================================= */
+
+/* Variables CSS */
+:root {
+  --primary-color: #0d6efd;
+  --secondary-color: #6c757d;
+  --success-color: #198754;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --dark-color: #212529;
+  --light-color: #f8f9fa;
+}
+
+/* Estilos base */
+.min-vh-100 {
+  min-height: 100vh;
+}
+
+/* =============================================
+   NAVBAR Y HEADER
+   ============================================= */
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* =============================================
+   CARDS Y CONTENEDORES
+   ============================================= */
+
+/* Mejoras para el carrito sticky */
+.sticky-top {
+  position: sticky;
+  z-index: 1020;
+}
+
+/* Sombras suaves para cards */
+.shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.shadow-lg {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+/* Animaciones suaves para cards de productos */
+.producto .card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.producto .card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* =============================================
+   TABLAS
+   ============================================= */
+.table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table thead th {
+  border-bottom: 2px solid var(--primary-color);
+}
+
+/* =============================================
+   BOTONES
+   ============================================= */
+.btn {
+  transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3);
+}
+
+.btn-success {
+  box-shadow: 0 2px 4px rgba(25, 135, 84, 0.3);
+}
+
+.btn-danger {
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+/* =============================================
+   GRADIENTES
+   ============================================= */
+.bg-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+/* =============================================
+   FOOTER
+   ============================================= */
+footer {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #e0e0e0;
+  padding: 0;
+  margin-top: auto;
+}
+
+.info-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  padding: 40px 20px;
+  gap: 30px;
+}
+
+.info-footer .columna {
+  flex: 1;
+  min-width: 250px;
+  max-width: 350px;
+}
+
+.info-footer .columna h3 {
+  color: #fff;
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--primary-color);
+  display: inline-block;
+}
+
+.info-footer .columna p {
+  color: #b0b0b0;
+  line-height: 1.8;
+  margin-bottom: 8px;
+}
+
+.info-footer .columna ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-footer .columna ul li {
+  margin-bottom: 10px;
+}
+
+.info-footer .columna ul li a {
+  color: #b0b0b0;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.info-footer .columna ul li a:hover {
+  color: var(--primary-color);
+  padding-left: 5px;
+}
+
+.derechos {
+  background: rgba(0, 0, 0, 0.3);
+  text-align: center;
+  padding: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.derechos p {
+  margin: 0;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+/* =============================================
+   BADGES
+   ============================================= */
+.badge {
+  font-weight: 500;
+  padding: 0.4em 0.8em;
+}
+
+/* =============================================
+   FORMULARIOS
+   ============================================= */
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* =============================================
+   ALERTAS
+   ============================================= */
+.alert {
+  border: none;
+  border-radius: 8px;
+}
+
+/* =============================================
+   MODAL
+   ============================================= */
+.modal-content {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-footer {
+  border-top: 1px solid #e9ecef;
+}
+
+/* =============================================
+   TABS
+   ============================================= */
+.nav-tabs .nav-link {
+  border: none;
+  color: var(--secondary-color);
+  padding: 0.75rem 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  border: none;
+  color: var(--primary-color);
+}
+
+.nav-tabs .nav-link.active {
+  border: none;
+  border-bottom: 3px solid var(--primary-color);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* =============================================
+   SPINNER
+   ============================================= */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* =============================================
+   RESPONSIVIDAD
+   ============================================= */
+@media (max-width: 768px) {
+  .display-5 {
+    font-size: 2rem;
+  }
+  
+  .display-4 {
+    font-size: 2.5rem;
+  }
+
+  .info-footer {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .info-footer .columna {
+    min-width: 100%;
+  }
+
+  .info-footer .columna h3 {
+    margin-bottom: 15px;
+  }
+}
+
+/* =============================================
+   ANIMACIONES
+   ============================================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* =============================================
+   SCROLLBAR PERSONALIZADO
+   ============================================= */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
