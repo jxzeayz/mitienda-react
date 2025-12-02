@@ -146,17 +146,58 @@ class UsuarioService {
 }
 
 // =============================================
+// SERVICIO DE CONTACTO
+// =============================================
+class ContactoService {
+    async enviarMensaje(mensaje) {
+        const response = await api.post('/contacto', mensaje);
+        return response.data;
+    }
+
+    async getAll() {
+        const response = await api.get('/contacto');
+        return response.data;
+    }
+
+    async getById(id) {
+        const response = await api.get(`/contacto/${id}`);
+        return response.data;
+    }
+
+    async getNoLeidos() {
+        const response = await api.get('/contacto/no-leidos');
+        return response.data;
+    }
+
+    async countNoLeidos() {
+        const response = await api.get('/contacto/count-no-leidos');
+        return response.data;
+    }
+
+    async marcarComoLeido(id) {
+        const response = await api.put(`/contacto/${id}/leido`);
+        return response.data;
+    }
+
+    async delete(id) {
+        await api.delete(`/contacto/${id}`);
+    }
+}
+
+// =============================================
 // EXPORTAR INSTANCIAS DE SERVICIOS
 // =============================================
 export const authService = new AuthService();
 export const productoService = new ProductoService();
 export const pedidoService = new PedidoService();
 export const usuarioService = new UsuarioService();
+export const contactoService = new ContactoService();
 
 // Exportar también para compatibilidad con código existente
 export const authAPI = authService;
 export const productosAPI = productoService;
 export const pedidosAPI = pedidoService;
 export const usuariosAPI = usuarioService;
+export const contactoAPI = contactoService;
 
 export default api;

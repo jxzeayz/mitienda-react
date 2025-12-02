@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Card, Form, Button, Alert, Accordion } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Alert, Accordion, Spinner } from 'react-bootstrap';
+import { contactoAPI } from '../services/api';
 
 const Contacto = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,8 @@ const Contacto = () => {
   });
   const [enviado, setEnviado] = useState(false);
   const [errores, setErrores] = useState({});
+  const [enviando, setEnviando] = useState(false);
+  const [errorEnvio, setErrorEnvio] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,23 +74,31 @@ const Contacto = () => {
     return Object.keys(nuevosErrores).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorEnvio('');
     
     if (validarFormulario()) {
-      // Simular envío del formulario
-      console.log('Datos del formulario:', formData);
-      setEnviado(true);
-      setFormData({
-        nombre: '',
-        email: '',
-        telefono: '',
-        asunto: '',
-        mensaje: '',
-        tipoConsulta: 'general'
-      });
-      
-      setTimeout(() => setEnviado(false), 5000);
+      setEnviando(true);
+      try {
+        await contactoAPI.enviarMensaje(formData);
+        setEnviado(true);
+        setFormData({
+          nombre: '',
+          email: '',
+          telefono: '',
+          asunto: '',
+          mensaje: '',
+          tipoConsulta: 'general'
+        });
+        
+        setTimeout(() => setEnviado(false), 5000);
+      } catch (error) {
+        console.error('Error al enviar mensaje:', error);
+        setErrorEnvio('Hubo un error al enviar el mensaje. Por favor, intenta nuevamente.');
+      } finally {
+        setEnviando(false);
+      }
     }
   };
 
@@ -130,6 +141,16 @@ const Contacto = () => {
           <Col>
             <Alert variant="success" className="text-center">
               ✅ ¡Mensaje enviado correctamente! Te contactaremos dentro de las próximas 24 horas.
+            </Alert>
+          </Col>
+        </Row>
+      )}
+
+      {errorEnvio && (
+        <Row className="mb-4">
+          <Col>
+            <Alert variant="danger" className="text-center" onClose={() => setErrorEnvio('')} dismissible>
+              ❌ {errorEnvio}
             </Alert>
           </Col>
         </Row>
@@ -296,8 +317,16 @@ const Contacto = () => {
                         variant="primary" 
                         size="lg"
                         className="fw-bold"
+                        disabled={enviando}
                       >
-                        📤 Enviar Mensaje
+                        {enviando ? (
+                          <>
+                            <Spinner animation="border" size="sm" className="me-2" />
+                            Enviando...
+                          </>
+                        ) : (
+                          '📤 Enviar Mensaje'
+                        )}
                       </Button>
                     </div>
                   </Col>

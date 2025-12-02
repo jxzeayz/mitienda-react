@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Tab, Tabs, Table, Button, Form, Modal, Badge, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Card, Tab, Tabs, Table, Button, Form, Modal, Badge, Spinner, Alert } from 'react-bootstrap';
 import { useAuth } from './AuthContext';
-import { productosAPI, pedidosAPI, usuariosAPI } from '../services/api';
+import { productosAPI, pedidosAPI, usuariosAPI, contactoAPI } from '../services/api';
 
 const PanelAdmin = () => {
   const { user } = useAuth();
@@ -19,11 +19,18 @@ const PanelAdmin = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [loadingUsuarios, setLoadingUsuarios] = useState(true);
 
+  // Estado para mensajes de contacto
+  const [mensajes, setMensajes] = useState([]);
+  const [loadingMensajes, setLoadingMensajes] = useState(true);
+  const [mensajeSeleccionado, setMensajeSeleccionado] = useState(null);
+  const [showMensajeModal, setShowMensajeModal] = useState(false);
+
   // Cargar datos al montar el componente
   useEffect(() => {
     cargarProductos();
     cargarPedidos();
     cargarUsuarios();
+    cargarMensajes();
   }, []);
 
   const cargarProductos = async () => {
@@ -60,6 +67,57 @@ const PanelAdmin = () => {
     } finally {
       setLoadingUsuarios(false);
     }
+  };
+
+  const cargarMensajes = async () => {
+    try {
+      setLoadingMensajes(true);
+      const data = await contactoAPI.getAll();
+      setMensajes(data);
+    } catch (error) {
+      console.error('Error al cargar mensajes:', error);
+    } finally {
+      setLoadingMensajes(false);
+    }
+  };
+
+  const handleVerMensaje = async (mensaje) => {
+    setMensajeSeleccionado(mensaje);
+    setShowMensajeModal(true);
+    
+    // Marcar como leído si no lo está
+    if (!mensaje.leido) {
+      try {
+        await contactoAPI.marcarComoLeido(mensaje.id);
+        cargarMensajes(); // Recargar para actualizar el estado
+      } catch (error) {
+        console.error('Error al marcar como leído:', error);
+      }
+    }
+  };
+
+  const handleEliminarMensaje = async (id) => {
+    if (window.confirm('¿Estás seguro de eliminar este mensaje?')) {
+      try {
+        await contactoAPI.delete(id);
+        cargarMensajes();
+        setShowMensajeModal(false);
+      } catch (error) {
+        alert('Error al eliminar mensaje: ' + error.message);
+      }
+    }
+  };
+
+  const getTipoConsultaBadge = (tipo) => {
+    const tipos = {
+      'general': { variant: 'secondary', texto: 'General' },
+      'tecnica': { variant: 'info', texto: 'Soporte Técnico' },
+      'ventas': { variant: 'success', texto: 'Ventas' },
+      'garantia': { variant: 'warning', texto: 'Garantía' },
+      'distribuidor': { variant: 'primary', texto: 'Distribuidor' }
+    };
+    const tipoInfo = tipos[tipo] || tipos['general'];
+    return <Badge bg={tipoInfo.variant}>{tipoInfo.texto}</Badge>;
   };
 
   // Estados para modales
@@ -169,6 +227,7 @@ const PanelAdmin = () => {
   const totalVentas = pedidos.reduce((sum, p) => sum + Number(p.total || 0), 0);
   const pedidosCompletados = pedidos.filter(p => p.estado === 'COMPLETADO').length;
   const totalUsuarios = usuarios.length;
+  const mensajesNoLeidos = mensajes.filter(m => !m.leido).length;
 
   return (
     <Container fluid className="my-4">
@@ -216,6 +275,27 @@ const PanelAdmin = () => {
                 <Card.Body>
                   <h3 className="text-info">{totalUsuarios}</h3>
                   <p className="text-muted mb-0">Usuarios Registrados</p>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+
+          <Row className="g-4 mb-4">
+            <Col md={6}>
+              <Card className="text-center border-secondary">
+                <Card.Body>
+                  <h3 className="text-secondary">{mensajes.length}</h3>
+                  <p className="text-muted mb-0">Total Mensajes de Contacto</p>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col md={6}>
+              <Card className={`text-center ${mensajesNoLeidos > 0 ? 'border-danger' : 'border-secondary'}`}>
+                <Card.Body>
+                  <h3 className={mensajesNoLeidos > 0 ? 'text-danger' : 'text-secondary'}>
+                    {mensajesNoLeidos}
+                  </h3>
+                  <p className="text-muted mb-0">Mensajes Sin Leer</p>
                 </Card.Body>
               </Card>
             </Col>
@@ -429,6 +509,93 @@ const PanelAdmin = () => {
             </Card.Body>
           </Card>
         </Tab>
+
+        {/* Gestión de Mensajes de Contacto */}
+        <Tab eventKey="mensajes" title={
+          <>
+            📬 Mensajes {mensajesNoLeidos > 0 && <Badge bg="danger" className="ms-1">{mensajesNoLeidos}</Badge>}
+          </>
+        }>
+          <Card>
+            <Card.Header className="d-flex justify-content-between align-items-center">
+              <h5 className="mb-0">Mensajes de Contacto</h5>
+              <Button variant="outline-primary" size="sm" onClick={cargarMensajes}>
+                🔄 Actualizar
+              </Button>
+            </Card.Header>
+            <Card.Body>
+              {mensajesNoLeidos > 0 && (
+                <Alert variant="info" className="mb-3">
+                  📩 Tienes <strong>{mensajesNoLeidos}</strong> mensaje(s) sin leer
+                </Alert>
+              )}
+              <Table responsive hover>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Estado</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Tipo</th>
+                    <th>Asunto</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loadingMensajes ? (
+                    <tr>
+                      <td colSpan="8" className="text-center">
+                        <Spinner animation="border" size="sm" /> Cargando...
+                      </td>
+                    </tr>
+                  ) : mensajes.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" className="text-center text-muted">
+                        No hay mensajes de contacto
+                      </td>
+                    </tr>
+                  ) : (
+                    mensajes.map((mensaje) => (
+                    <tr key={mensaje.id} className={!mensaje.leido ? 'table-warning' : ''}>
+                      <td>#{mensaje.id}</td>
+                      <td>
+                        {mensaje.leido ? (
+                          <Badge bg="secondary">Leído</Badge>
+                        ) : (
+                          <Badge bg="danger">Nuevo</Badge>
+                        )}
+                      </td>
+                      <td><strong>{mensaje.nombre}</strong></td>
+                      <td>{mensaje.email}</td>
+                      <td>{getTipoConsultaBadge(mensaje.tipoConsulta)}</td>
+                      <td>{mensaje.asunto.length > 30 ? mensaje.asunto.substring(0, 30) + '...' : mensaje.asunto}</td>
+                      <td>{new Date(mensaje.fechaCreacion).toLocaleDateString('es-CL')}</td>
+                      <td>
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          className="me-2"
+                          onClick={() => handleVerMensaje(mensaje)}
+                        >
+                          Ver
+                        </Button>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => handleEliminarMensaje(mensaje.id)}
+                        >
+                          Eliminar
+                        </Button>
+                      </td>
+                    </tr>
+                    ))
+                  )}
+                </tbody>
+              </Table>
+            </Card.Body>
+          </Card>
+        </Tab>
       </Tabs>
 
       {/* Modal para Productos */}
@@ -511,6 +678,87 @@ const PanelAdmin = () => {
           </Button>
           <Button variant="primary" onClick={handleGuardarProducto}>
             {productoEditando ? 'Actualizar' : 'Crear'} Producto
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal para Ver Mensaje */}
+      <Modal show={showMensajeModal} onHide={() => setShowMensajeModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>
+            📧 Detalle del Mensaje
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {mensajeSeleccionado && (
+            <>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <strong>De:</strong> {mensajeSeleccionado.nombre}
+                </Col>
+                <Col md={6}>
+                  <strong>Email:</strong> {mensajeSeleccionado.email}
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <strong>Teléfono:</strong> {mensajeSeleccionado.telefono || 'No proporcionado'}
+                </Col>
+                <Col md={6}>
+                  <strong>Tipo:</strong> {getTipoConsultaBadge(mensajeSeleccionado.tipoConsulta)}
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <strong>Fecha:</strong> {new Date(mensajeSeleccionado.fechaCreacion).toLocaleString('es-CL')}
+                </Col>
+                <Col md={6}>
+                  <strong>Estado:</strong>{' '}
+                  {mensajeSeleccionado.leido ? (
+                    <Badge bg="secondary">Leído</Badge>
+                  ) : (
+                    <Badge bg="danger">Nuevo</Badge>
+                  )}
+                </Col>
+              </Row>
+              <hr />
+              <Row className="mb-3">
+                <Col>
+                  <strong>Asunto:</strong>
+                  <p className="mb-0">{mensajeSeleccionado.asunto}</p>
+                </Col>
+              </Row>
+              <hr />
+              <Row>
+                <Col>
+                  <strong>Mensaje:</strong>
+                  <Card className="mt-2">
+                    <Card.Body style={{ whiteSpace: 'pre-wrap' }}>
+                      {mensajeSeleccionado.mensaje}
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+            variant="danger" 
+            onClick={() => handleEliminarMensaje(mensajeSeleccionado?.id)}
+          >
+            🗑️ Eliminar
+          </Button>
+          <Button 
+            variant="success"
+            onClick={() => {
+              window.location.href = `mailto:${mensajeSeleccionado?.email}?subject=Re: ${mensajeSeleccionado?.asunto}`;
+            }}
+          >
+            ✉️ Responder por Email
+          </Button>
+          <Button variant="secondary" onClick={() => setShowMensajeModal(false)}>
+            Cerrar
           </Button>
         </Modal.Footer>
       </Modal>
